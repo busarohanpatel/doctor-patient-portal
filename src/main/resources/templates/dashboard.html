@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Health Platform</title>
+</head>
+<body class="bg-light p-5">
+    <div class="container card shadow p-4">
+        <h2 class="text-primary mb-4">Portal: <span th:text="${role}"></span></h2>
+        
+        <div th:if="${role == 'Patient'}" class="mb-5">
+            <h4>Book Appointment</h4>
+            <form action="/book" method="post" class="row g-3">
+                <div class="col-md-6"><input name="name" class="form-control" placeholder="Your Name" required></div>
+                <div class="col-md-6"><input name="symptoms" class="form-control" placeholder="Symptoms" required></div>
+                <div class="col-12"><button class="btn btn-success">Submit Appointment</button></div>
+            </form>
+            <hr>
+            <h5>My Notifications</h5>
+            <div th:each="appt : ${appointments}" class="alert alert-info mt-2">
+                <strong>Status:</strong> [[${appt.status}]] | <strong>Rx:</strong> [[${appt.prescription}]]
+            </div>
+        </div>
+
+        <div th:if="${role == 'Doctor'}">
+            <h4>Patient Records & Updates</h4>
+            <div th:each="appt, iter : ${appointments}" class="border p-3 mb-3 bg-white shadow-sm">
+                <p><strong>Patient:</strong> [[${appt.patientName}]] | <strong>Symptom:</strong> [[${appt.symptoms}]]</p>
+                <form th:action="'/update/' + ${iter.index}" method="post" class="row g-2">
+                    <div class="col-md-5"><input name="rx" placeholder="Prescription" class="form-control"></div>
+                    <div class="col-md-5"><input name="rpt" placeholder="Medical Report" class="form-control"></div>
+                    <div class="col-md-2"><button class="btn btn-primary w-100">Update</button></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4 border-top pt-3">
+            <small class="text-muted">Switch Role for Testing:</small><br>
+            <a href="/?role=Patient" class="btn btn-outline-secondary btn-sm">Patient View</a>
+            <a href="/?role=Doctor" class="btn btn-outline-secondary btn-sm">Doctor View</a>
+        </div>
+    </div>
+</body>
+</html>
