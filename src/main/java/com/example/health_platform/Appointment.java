@@ -31,21 +31,33 @@ public class Appointment {
     @JsonProperty("appointmentTime")
     private String appointmentTime; 
     
+    @Column(name = "doctor_name")
+    @JsonProperty("doctorName")
+    private String doctorName; 
+
+    // --- NEW FIELD FOR SPECIALTY ---
+    @Column(name = "doctor_specialty")
+    @JsonProperty("doctorSpecialty")
+    private String doctorSpecialty; 
+
     private String status = "Pending Review";
     private String prescription = "Awaiting Doctor";
     private String report = "None";
 
     public Appointment() {}
 
-    public Appointment(String patientName, String phoneNumber, String symptoms, String appointmentDate, String appointmentTime) {
+    // Updated Constructor to include specialty
+    public Appointment(String patientName, String phoneNumber, String symptoms, String appointmentDate, String appointmentTime, String doctorName, String doctorSpecialty) {
         this.patientName = patientName;
         this.phoneNumber = phoneNumber;
         this.symptoms = symptoms;
         this.appointmentDate = appointmentDate;
         this.appointmentTime = appointmentTime;
+        this.doctorName = doctorName;
+        this.doctorSpecialty = doctorSpecialty;
     }
 
-    // Getters and Setters
+    // Existing Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -72,4 +84,11 @@ public class Appointment {
 
     public String getReport() { return report; }
     public void setReport(String report) { this.report = report; }
+
+    public String getDoctorName() { return doctorName; }
+    public void setDoctorName(String doctorName) { this.doctorName = doctorName; }
+
+    // --- NEW Getter and Setter for Doctor Specialty ---
+    public String getDoctorSpecialty() { return doctorSpecialty; }
+    public void setDoctorSpecialty(String doctorSpecialty) { this.doctorSpecialty = doctorSpecialty; }
 }

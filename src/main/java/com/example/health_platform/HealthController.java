@@ -1,17 +1,13 @@
 package com.example.health_platform;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api") 
-// Adding @CrossOrigin here as a second layer of defense for port 3001
+@RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"}, allowCredentials = "true")
 public class HealthController {
 
@@ -19,33 +15,30 @@ public class HealthController {
     private AppointmentRepository appointmentRepository;
 
     /**
-     * UPDATED GLOBAL CORS FIX: 
-     * Now explicitly allows both 3000 and 3001 to stop the red console errors.
+     * Get appointments for a specific doctor.
+     * URL: http://localhost:8080/api/doctor/appointments?doctor=Dr. Rohan
      */
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:3000", "http://localhost:3001")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
-
-    // This endpoint works for both DoctorDashboard.js and PatientStatus.js
-    // URL: http://localhost:8080/api/doctor/appointments
     @GetMapping("/doctor/appointments")
-    public List<Appointment> getAppointments() {
-        return appointmentRepository.findAll();
+    public List<Appointment> getAppointments(@RequestParam String doctor) {
+        return appointmentRepository.findByDoctorName(doctor);
     }
 
-    // URL: http://localhost:8080/api/book
+    /**
+     * NEW: Get appointments filtered by specialty.
+     * URL: http://localhost:8080/api/specialty?type=Eye Specialist
+     */
+    @GetMapping("/specialty")
+    public List<Appointment> getBySpecialty(@RequestParam String type) {
+        return appointmentRepository.findByDoctorSpecialty(type);
+    }
+
+    /**
+     * Book an appointment. 
+     * Now includes doctorName and doctorSpecialty in the saved data.
+     */
     @PostMapping("/book")
     public ResponseEntity<?> book(@RequestBody Appointment appointment) {
+        // Check for double booking
         boolean isTaken = appointmentRepository.existsByAppointmentDateAndAppointmentTime(
             appointment.getAppointmentDate(), 
             appointment.getAppointmentTime()
@@ -56,10 +49,14 @@ public class HealthController {
                                  .body("This time slot is already booked.");
         }
 
+        // Save appointment (doctorSpecialty is automatically saved if present in JSON)
         Appointment saved = appointmentRepository.save(appointment);
         return ResponseEntity.ok(saved);
     }
 
+    /**
+     * Update treatment details (Prescription and Report).
+     */
     @PostMapping("/update/{id}")
     public Appointment update(@PathVariable Long id, @RequestBody Appointment updateData) {
         Appointment a = appointmentRepository.findById(id).orElseThrow();

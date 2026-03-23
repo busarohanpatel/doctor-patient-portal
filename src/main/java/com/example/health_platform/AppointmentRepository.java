@@ -9,25 +9,44 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     /**
      * Checks if a specific date and time slot is already taken.
-     * Spring Data JPA will automatically handle the mapping to 
-     * 'appointment_date' and 'appointment_time' columns.
+     * Maps to 'appointment_date' and 'appointment_time' in MySQL.
      */
     boolean existsByAppointmentDateAndAppointmentTime(String appointmentDate, String appointmentTime);
     
     /**
-     * Fetches all appointments for a specific date. 
-     * Useful for checking availability on the frontend.
+     * Fetches all appointments for a specific date.
      */
     List<Appointment> findByAppointmentDate(String appointmentDate);
 
     /**
-     * Fetches appointments for a specific patient name (Case Sensitive).
+     * Fetches appointments for a specific patient name (Exact Match).
      */
     List<Appointment> findByPatientName(String patientName);
 
     /**
-     * Added: Search for patients by name (Case Insensitive / Partial Match).
-     * This is very helpful for the Doctor Dashboard search bar.
+     * Search for patients by name (Case Insensitive / Partial Match).
      */
     List<Appointment> findByPatientNameContainingIgnoreCase(String patientName);
+
+    /**
+     * Fetches all appointments for a specific doctor.
+     */
+    List<Appointment> findByDoctorName(String doctorName);
+
+    /**
+     * NEW: Fetches all appointments by medical specialty.
+     * Useful for seeing all "Heart Specialist" or "Eye Specialist" patients.
+     */
+    List<Appointment> findByDoctorSpecialty(String doctorSpecialty);
+
+    /**
+     * Filter by Doctor AND Date.
+     */
+    List<Appointment> findByDoctorNameAndAppointmentDate(String doctorName, String appointmentDate);
+
+    /**
+     * NEW: Find by Specialty AND Date.
+     * Shows all patients for a specific department on a specific day.
+     */
+    List<Appointment> findByDoctorSpecialtyAndAppointmentDate(String doctorSpecialty, String appointmentDate);
 }
