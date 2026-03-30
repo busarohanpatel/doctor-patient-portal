@@ -15,6 +15,16 @@ public class HealthController {
     private AppointmentRepository appointmentRepository;
 
     /**
+     * NEW: Patient Report Search
+     * URL: http://localhost:8080/api/report?name=nikhil
+     */
+    @GetMapping("/report")
+    public List<Appointment> getReport(@RequestParam String name) {
+        // This looks for the patient in the database using the Repository
+        return appointmentRepository.findByPatientNameContainingIgnoreCase(name);
+    }
+
+    /**
      * Get appointments for a specific doctor.
      * URL: http://localhost:8080/api/doctor/appointments?doctor=Dr. Rohan
      */
@@ -24,7 +34,7 @@ public class HealthController {
     }
 
     /**
-     * NEW: Get appointments filtered by specialty.
+     * Get appointments filtered by specialty.
      * URL: http://localhost:8080/api/specialty?type=Eye Specialist
      */
     @GetMapping("/specialty")
@@ -34,11 +44,9 @@ public class HealthController {
 
     /**
      * Book an appointment. 
-     * Now includes doctorName and doctorSpecialty in the saved data.
      */
     @PostMapping("/book")
     public ResponseEntity<?> book(@RequestBody Appointment appointment) {
-        // Check for double booking
         boolean isTaken = appointmentRepository.existsByAppointmentDateAndAppointmentTime(
             appointment.getAppointmentDate(), 
             appointment.getAppointmentTime()
@@ -49,13 +57,12 @@ public class HealthController {
                                  .body("This time slot is already booked.");
         }
 
-        // Save appointment (doctorSpecialty is automatically saved if present in JSON)
         Appointment saved = appointmentRepository.save(appointment);
         return ResponseEntity.ok(saved);
     }
 
     /**
-     * Update treatment details (Prescription and Report).
+     * Update treatment details.
      */
     @PostMapping("/update/{id}")
     public Appointment update(@PathVariable Long id, @RequestBody Appointment updateData) {

@@ -11,22 +11,27 @@
         <div th:if="${role == 'Patient'}" class="mb-5">
             <h4>Book Appointment</h4>
             <form action="/book" method="post" class="row g-3">
-                <div class="col-md-6"><input name="name" class="form-control" placeholder="Your Name" required></div>
-                <div class="col-md-6"><input name="symptoms" class="form-control" placeholder="Symptoms" required></div>
+                <div class="col-md-3"><input name="name" class="form-control" placeholder="Your Name" required></div>
+                <div class="col-md-3"><input name="phone" class="form-control" placeholder="Phone Number" required></div>
+                <div class="col-md-3"><input name="date" type="date" class="form-control" required></div>
+                <div class="col-md-3"><input name="time" type="time" class="form-control" required></div>
+                <div class="col-12"><input name="symptoms" class="form-control" placeholder="Symptoms" required></div>
                 <div class="col-12"><button class="btn btn-success">Submit Appointment</button></div>
             </form>
             <hr>
             <h5>My Notifications</h5>
             <div th:each="appt : ${appointments}" class="alert alert-info mt-2">
+                <strong>Date:</strong> [[${appt.appointmentDate}]] | <strong>Time:</strong> [[${appt.appointmentTime}]] | <strong>Phone:</strong> [[${appt.phoneNumber}]]<br>
                 <strong>Status:</strong> [[${appt.status}]] | <strong>Rx:</strong> [[${appt.prescription}]]
             </div>
         </div>
 
         <div th:if="${role == 'Doctor'}">
             <h4>Patient Records & Updates</h4>
-            <div th:each="appt, iter : ${appointments}" class="border p-3 mb-3 bg-white shadow-sm">
-                <p><strong>Patient:</strong> [[${appt.patientName}]] | <strong>Symptom:</strong> [[${appt.symptoms}]]</p>
-                <form th:action="'/update/' + ${iter.index}" method="post" class="row g-2">
+            <div th:each="appt : ${appointments}" class="border p-3 mb-3 bg-white shadow-sm">
+                <p><strong>Patient:</strong> [[${appt.patientName}]] | <strong>Phone:</strong> [[${appt.phoneNumber}]] | <strong>Date:</strong> [[${appt.appointmentDate}]] | <strong>Time:</strong> [[${appt.appointmentTime}]]</p>
+                <p><strong>Symptom:</strong> [[${appt.symptoms}]]</p>
+                <form th:action="'/update/' + ${appt.id}" method="post" class="row g-2">
                     <div class="col-md-5"><input name="rx" placeholder="Prescription" class="form-control"></div>
                     <div class="col-md-5"><input name="rpt" placeholder="Medical Report" class="form-control"></div>
                     <div class="col-md-2"><button class="btn btn-primary w-100">Update</button></div>
