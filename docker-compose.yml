@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  mysql-health:
+    image: mysql:8.0
+    container_name: mysql-health
+    environment:
+      MYSQL_ROOT_PASSWORD: Rohan@2006
+      MYSQL_DATABASE: health_platform
+    ports:
+      - "3307:3306"
+    networks:
+      - health-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  health-platform:
+    image: health-platform
+    container_name: health-platform
+    depends_on:
+      mysql-health:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - health-net
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-health:3306/health_platform?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Rohan@2006
+
+  health-frontend:
+    build:
+      context: ../health-frontend
+      dockerfile: Dockerfile
+    container_name: health-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - health-net
+
+networks:
+  health-net:
+    driver: bridge
